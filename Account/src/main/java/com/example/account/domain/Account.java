@@ -41,7 +41,7 @@ public class Account { // DOMAIN = DTO
         @LastModifiedDate // 자동으로 등록해줌
         private LocalDateTime updatedAt;
 
-        public void userBalance(Long amount){
+        public void useBalance(Long amount){
                 if(amount > balance){
                         throw new AccountException(ErrorCode.AMOUNT_EXCEED_BALANCE);
                 }

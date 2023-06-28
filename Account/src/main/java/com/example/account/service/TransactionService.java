@@ -49,7 +49,7 @@ public class TransactionService {
 
 
         validateUseBalance(user, account, amount);  // 주석 참조
-        account.userBalance(amount);
+        account.useBalance(amount);
 
         Transaction transaction = saveAndGetTransaction(S, amount, account);
 

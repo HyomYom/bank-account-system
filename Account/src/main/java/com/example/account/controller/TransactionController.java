@@ -23,13 +23,15 @@ import javax.validation.Valid;
 public class TransactionController {
     private final TransactionService transactionService;
 
-    @PostMapping("/transaction/user")
+    @PostMapping("/transaction/use")
     public UseBalance.Response useBalance(
             @Valid @RequestBody UseBalance.Request request
-    ){
+    ) {
         try {
-           return UseBalance.Response.from(transactionService.useBalance(request.getUserId(),
-                    request.getAccountNumber(), request.getAmount()));
+            return UseBalance.Response.from(transactionService.useBalance(
+                    request.getUserId(),
+                    request.getAccountNumber(),
+                    request.getAmount()));
         } catch (AccountException e) { // 실패 시, 실패 데이터 저장
             log.error("Failed to user balance. ");
 
