@@ -10,6 +10,7 @@ import com.example.account.repository.AccountUserRepository;
 import com.example.account.repository.TransactionRepository;
 import com.example.account.type.AccountStatus;
 import com.example.account.type.ErrorCode;
+import com.example.account.type.TransactionResultType;
 import com.example.account.type.TransactionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.example.account.type.TransactionResultType.F;
 import static com.example.account.type.TransactionResultType.S;
 import static com.example.account.type.TransactionType.*;
 
@@ -49,17 +51,7 @@ public class TransactionService {
         validateUseBalance(user, account, amount);  // 주석 참조
         account.userBalance(amount);
 
-        Transaction transaction = transactionRepository.save(
-                Transaction.builder()
-                        .transactionType(USE)
-                        .transactionResultType(S)
-                        .account(account)
-                        .amount(amount)
-                        .balanceSnapshot(account.getBalance())
-                        .transactionId(UUID.randomUUID().toString().replace("-", ""))
-                        .transactedAt(LocalDateTime.now())
-                        .build()
-        );
+        Transaction transaction = saveAndGetTransaction(S, amount, account);
 
         return TransactionDto.fromEntity(transaction);
 
@@ -77,5 +69,27 @@ public class TransactionService {
         }
 
 
+    }
+    @Transactional
+    public void saveFailedUseTransaction(String accountNumber, Long amount) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        saveAndGetTransaction(F,amount, account);
+
+    }
+
+    private Transaction saveAndGetTransaction(TransactionResultType transactionResultType, Long amount, Account account) {
+        return transactionRepository.save(
+                Transaction.builder()
+                        .transactionType(USE)
+                        .transactionResultType(transactionResultType)
+                        .account(account)
+                        .amount(amount)
+                        .balanceSnapshot(account.getBalance())
+                        .transactionId(UUID.randomUUID().toString().replace("-", ""))
+                        .transactedAt(LocalDateTime.now())
+                        .build()
+        );
     }
 }
